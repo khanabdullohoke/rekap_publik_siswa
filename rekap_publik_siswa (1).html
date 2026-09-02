@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekap Kehadiran Siswa — SMKS Ciledug Al-Musaddadiyah</title>
+<meta name="description" content="Rekap kehadiran siswa harian SMKS Ciledug Al-Musaddadiyah — transparan untuk orang tua & masyarakat umum.">
+<meta name="theme-color" content="#0b3d91">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ffb300'/%3E%3Cpath d='M32 14 10 24l22 10 22-10-22-10Z' fill='%230b3d91'/%3E%3Cpath d='M18 29v10c0 4 6 8 14 8s14-4 14-8V29' stroke='%230b3d91' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{
+    --navy:#0b3d91; --navy-deep:#062454; --gold:#ffb300; --gold-deep:#c98600;
+    --ink:#10182b; --muted:#66708a; --faint:#98a2b8;
+    --bg:#f4f6fc; --card:#ffffff; --line:#edf1f9;
+    --ok:#12b76a; --ok-bg:#e7f9f0;
+    --warn:#f79009; --warn-bg:#fef3e2; --warn-deep:#93590a;
+    --info:#2e90fa; --info-bg:#e8f2ff;
+    --err:#f04438;  --err-bg:#feecec;
+    --neutral:#66708a; --neutral-bg:#eef1f8;
+    --font-display:'Sora',system-ui,sans-serif;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display);}
+
+  header{
+    position:relative;overflow:hidden;
+    background:linear-gradient(160deg,var(--navy) 0%,var(--navy-deep) 100%);color:#fff;padding:22px 18px 18px;
+    box-shadow:0 2px 0 var(--gold),0 18px 40px rgba(6,36,84,0.28);
+  }
+  header::before{
+    content:'';position:absolute;inset:0;pointer-events:none;opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.1'%3E%3Ccircle cx='21' cy='21' r='15'/%3E%3Ccircle cx='63' cy='21' r='15'/%3E%3Ccircle cx='21' cy='63' r='15'/%3E%3Ccircle cx='63' cy='63' r='15'/%3E%3Ccircle cx='42' cy='42' r='15'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:84px 84px;
+  }
+  header > *{position:relative;z-index:1;}
+  .brand{display:flex;align-items:center;gap:13px;max-width:1120px;margin:0 auto;padding-bottom:14px;flex-wrap:wrap;}
+  .brand .logo{width:44px;height:44px;border-radius:12px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--navy);font-weight:900;flex-shrink:0;box-shadow:0 6px 16px rgba(255,179,0,0.35);}
+  .brand-text{flex:1;min-width:0;}
+  .brand h1{font-size:15.5px;margin:0;line-height:1.3;font-weight:700;}
+  .brand .yayasan{font-size:10px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:1px;}
+  .brand span{font-size:11px;color:#b9c8ec;}
+  .badge-publik{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);
+    color:#e6ecff;font-size:11px;font-weight:600;padding:6px 12px;border-radius:999px;flex-shrink:0;
+  }
+  .badge-publik .dot{width:6px;height:6px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 3px rgba(61,220,132,0.25);}
+  @media(max-width:480px){
+    .brand-text{flex:1 1 calc(100% - 57px);}
+    .badge-publik{order:3;flex:0 0 100%;margin:8px 0 0 57px;width:fit-content;}
+  }
+  .header-controls{max-width:1120px;margin:0 auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .header-controls input[type="date"]{padding:9px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--navy);background:#fff;border:none;font-family:inherit;}
+  .header-controls button{padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .header-controls button:hover{background:rgba(255,255,255,0.18);}
+  .header-controls button.hari-ini{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+
+  main{max-width:1120px;margin:0 auto;padding:20px 18px 44px;}
+
+  .muat{text-align:center;color:var(--muted);font-size:13px;padding:30px 0;}
+  .muat-spin{width:26px;height:26px;margin:0 auto 10px;border:3px solid var(--line);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .pesan{font-size:13px;padding:12px 14px;border-radius:12px;margin-top:10px;}
+  .pesan.err{background:var(--err-bg);color:#8a2e24;}
+  .pesan.ok{background:var(--ok-bg);color:#0a7a49;}
+
+  .dash-title{margin-bottom:16px;}
+  .dash-title h2{font-size:19px;margin:0 0 4px;color:var(--navy);font-weight:800;}
+  .dash-title p{margin:0;font-size:12.5px;color:var(--muted);}
+
+  /* Hero: gauge + kartu ringkas */
+  .hero-grid{display:grid;grid-template-columns:230px 1fr;gap:16px;margin-bottom:18px;align-items:stretch;}
+  @media(max-width:700px){.hero-grid{grid-template-columns:1fr;}}
+  .gauge-panel{
+    background:radial-gradient(120% 140% at 50% -10%, rgba(11,61,145,0.05), transparent 60%),var(--card);
+    border-radius:24px;padding:24px 18px 20px;
+    box-shadow:0 1px 2px rgba(11,61,145,0.06),0 18px 40px -6px rgba(11,61,145,0.14);border:1px solid var(--line);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  }
+  .gauge-panel .gauge-caption{font-size:11.5px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;margin-top:12px;}
+  .gauge-panel .gauge-sub{font-size:11px;color:var(--faint);margin-top:3px;}
+
+  .kartu-ringkas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media(max-width:560px){.kartu-ringkas{grid-template-columns:1fr 1fr;}}
+  .kartu{
+    position:relative;background:var(--card);border-radius:16px;padding:13px 14px 14px;
+    box-shadow:0 8px 22px rgba(11,61,145,0.06);border:1px solid var(--line);overflow:hidden;
+  }
+  .kartu::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3.5px;background:var(--line);}
+  .kartu .ico{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .kartu .angka{font-size:21px;font-weight:800;font-family:var(--font-display);margin-top:9px;font-variant-numeric:tabular-nums;}
+  .kartu .label{font-size:10.5px;color:var(--muted);margin-top:1px;font-weight:600;}
+  .kartu.hadir::before{background:var(--ok);} .kartu.hadir .angka{color:var(--ok);} .kartu.hadir .ico{background:var(--ok-bg);}
+  .kartu.sakit::before{background:var(--warn);} .kartu.sakit .angka{color:var(--warn);} .kartu.sakit .ico{background:var(--warn-bg);}
+  .kartu.izin::before{background:var(--info);} .kartu.izin .angka{color:var(--info);} .kartu.izin .ico{background:var(--info-bg);}
+  .kartu.alpa::before{background:var(--err);} .kartu.alpa .angka{color:var(--err);} .kartu.alpa .ico{background:var(--err-bg);}
+  .kartu.total::before{background:var(--navy);} .kartu.total .angka{color:var(--navy);} .kartu.total .ico{background:#e8effd;}
+  .kartu.belum::before{background:var(--neutral);} .kartu.belum .angka{color:var(--neutral);} .kartu.belum .ico{background:var(--neutral-bg);}
+
+  .panel{
+    background:var(--card);border-radius:20px;padding:20px;
+    box-shadow:0 1px 2px rgba(11,61,145,0.05),0 14px 32px -8px rgba(11,61,145,0.10);border:1px solid var(--line);margin-bottom:16px;
+  }
+  .panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .panel-head h3{font-size:14.5px;margin:0;color:var(--navy);font-weight:800;}
+  .panel-head p{margin:2px 0 0;font-size:11.5px;color:var(--faint);}
+
+  /* Bar per jurusan */
+  .jurusan-item{margin-bottom:12px;}
+  .jurusan-item:last-child{margin-bottom:0;}
+  .jurusan-top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-bottom:5px;}
+  .jurusan-top b{color:var(--ink);font-weight:700;}
+  .jurusan-top span{color:var(--muted);font-size:11.5px;}
+  .bar-track{height:9px;border-radius:99px;background:var(--line);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--navy),#1650b8);transition:width .5s ease;}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
+  td.num, th.num{text-align:center;}
+  .persen-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:700;font-size:11.5px;}
+  .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .filter-row select{padding:8px 12px;border-radius:999px;font-size:12px;font-weight:600;color:var(--navy);background:#fff;border:1.5px solid var(--line);}
+  .table-scroll{max-height:420px;overflow-y:auto;border:1px solid var(--line);border-radius:14px;}
+  .table-scroll table{font-size:12px;}
+  .table-scroll thead th{position:sticky;top:0;background:#fff;z-index:1;}
+
+  canvas{max-width:100%;}
+
+  /* ===== Panel cari anak ===== */
+  .cari-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;}
+  @media(max-width:560px){.cari-form{grid-template-columns:1fr;}}
+  .cari-form input{padding:11px 13px;border-radius:12px;border:1.5px solid var(--line);font-size:13.5px;font-family:inherit;background:#f8faff;}
+  .cari-form input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,61,145,0.10);}
+  .btn-cari{padding:11px 18px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--navy) 0%,#1650b8 100%);color:#fff;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .btn-cari:disabled{opacity:.5;}
+
+  .hasil-anak{display:none;margin-top:16px;}
+  .hasil-anak.show{display:block;}
+  .profil-anak{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);}
+  .profil-anak h4{margin:0;font-size:15px;color:var(--navy);}
+  .profil-anak p{margin:2px 0 0;font-size:12px;color:var(--muted);}
+  .persen-besar{font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--ok);}
+  .persen-besar .sub{display:block;font-size:10.5px;color:var(--faint);font-weight:600;font-family:var(--font-body);}
+
+  .strip-14hari{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px;}
+  .chip-hari{width:30px;height:38px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+  .chip-hari .tgl{font-size:9.5px;opacity:.75;}
+  .chip-hari.Hadir{background:var(--ok-bg);color:var(--ok);}
+  .chip-hari.Sakit{background:var(--warn-bg);color:var(--warn-deep);}
+  .chip-hari.Izin{background:var(--info-bg);color:var(--info);}
+  .chip-hari.Alpa{background:var(--err-bg);color:var(--err);}
+  .chip-hari.kosong{background:var(--neutral-bg);color:var(--faint);}
+
+  footer{max-width:1120px;margin:0 auto;padding:0 18px 30px;font-size:11px;color:var(--faint);line-height:1.7;text-align:center;}
+  footer a{color:var(--navy);}
+
+  /* ===== Panel Ketentuan & FAQ ===== */
+  .motiv-card{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-deep) 100%);
+    color:#fff;border-radius:22px;padding:24px 22px;margin-bottom:16px;
+    box-shadow:0 14px 34px rgba(11,61,145,0.22);position:relative;overflow:hidden;
+  }
+  .motiv-card::before{
+    content:"";position:absolute;top:-40px;right:-40px;width:160px;height:160px;
+    background:radial-gradient(circle,rgba(255,179,0,0.28),transparent 70%);
+  }
+  .motiv-card .eyebrow{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;position:relative;}
+  .motiv-card h3{font-size:16.5px;margin:0 0 8px;line-height:1.4;font-weight:700;position:relative;}
+  .motiv-card p{font-size:12.5px;line-height:1.7;color:#d6e0f7;margin:0;max-width:680px;position:relative;}
+
+  .tingkat-list{list-style:none;margin:0;padding:0;}
+  .tingkat-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start;}
+  .tingkat-item:last-child{border-bottom:none;}
+  .tingkat-chip{
+    flex-shrink:0;width:78px;text-align:center;padding:5px 6px;border-radius:10px;
+    font-family:var(--font-display);font-weight:800;font-size:11.5px;line-height:1.3;
+  }
+  .tingkat-body{flex:1;min-width:0;}
+  .tingkat-body b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:2px;}
+  .tingkat-body span{font-size:11.5px;color:var(--muted);line-height:1.6;}
+  .tingkat-disclaimer{margin-top:12px;padding:11px 13px;border-radius:12px;background:var(--bg);font-size:11px;color:var(--muted);line-height:1.7;}
+
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-item:last-child{border-bottom:none;}
+  .faq-item summary{
+    padding:13px 4px;font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;
+    list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::after{content:"+";font-size:18px;font-weight:400;color:var(--faint);flex-shrink:0;}
+  .faq-item[open] summary::after{content:"–";}
+  .faq-item p{margin:0 0 13px;font-size:12.5px;color:var(--muted);line-height:1.7;padding-right:20px;}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">🎓</div>
+    <div class="brand-text">
+      <span class="yayasan">Yayasan Al-Musaddadiyah</span>
+      <h1>Rekap Kehadiran Siswa</h1>
+      <span>SMKS Ciledug Al-Musaddadiyah</span>
+    </div>
+    <div class="badge-publik"><span class="dot"></span> Data Publik · Diperbarui otomatis</div>
+  </div>
+  <div class="header-controls">
+    <input type="date" id="inTanggal">
+    <button class="hari-ini" onclick="setHariIni()">Hari ini</button>
+    <button onclick="muatSemua()">Tampilkan</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="dash-title">
+    <h2>Ringkasan Kehadiran</h2>
+    <p id="subJudulTanggal">Memuat data...</p>
+  </div>
+
+  <div id="muatUtama" class="muat">
+    <div class="muat-spin"></div>
+    Memuat rekap hari ini...
+  </div>
+
+  <div id="isiUtama" style="display:none;">
+
+    <div class="hero-grid">
+      <div class="gauge-panel">
+        <canvas id="gaugeSekolah" width="180" height="130"></canvas>
+        <div class="gauge-caption">Kehadiran Sekolah</div>
+        <div class="gauge-sub" id="gaugeSub">-</div>
+      </div>
+      <div class="kartu-ringkas">
+        <div class="kartu total">
+          <div class="ico">👥</div>
+          <div class="angka" id="angkaTotal">0</div>
+          <div class="label">Total Siswa</div>
+        </div>
+        <div class="kartu hadir">
+          <div class="ico">✅</div>
+          <div class="angka" id="angkaHadir">0</div>
+          <div class="label">Hadir</div>
+        </div>
+        <div class="kartu sakit">
+          <div class="ico">🤒</div>
+          <div class="angka" id="angkaSakit">0</div>
+          <div class="label">Sakit</div>
+        </div>
+        <div class="kartu izin">
+          <div class="ico">📩</div>
+          <div class="angka" id="angkaIzin">0</div>
+          <div class="label">Izin</div>
+        </div>
+        <div class="kartu alpa">
+          <div class="ico">❌</div>
+          <div class="angka" id="angkaAlpa">0</div>
+          <div class="label">Alpa</div>
+        </div>
+        <div class="kartu belum">
+          <div class="ico">⏳</div>
+          <div class="angka" id="angkaBelum">0</div>
+          <div class="label">Belum Tercatat</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Kehadiran per Jurusan</h3>
+          <p>Persentase siswa hadir dari total siswa terdaftar per jurusan</p>
+        </div>
+      </div>
+      <div id="daftarJurusan"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Tren 14 Hari Terakhir</h3>
+          <p>Persentase kehadiran siswa se-sekolah per hari</p>
+        </div>
+      </div>
+      <canvas id="grafikTren" width="1040" height="220"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Kehadiran per Kelas</h3>
+          <p>Rincian hadir / sakit / izin / alpa tiap kelas</p>
+        </div>
+      </div>
+      <div class="filter-row">
+        <select id="filterJurusan" onchange="renderTabelKelas()">
+          <option value="">Semua jurusan</option>
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Kelas</th><th>Jurusan</th>
+              <th class="num">Total</th><th class="num">Hadir</th><th class="num">Sakit</th>
+              <th class="num">Izin</th><th class="num">Alpa</th><th class="num">% Hadir</th>
+            </tr>
+          </thead>
+          <tbody id="tabelKelasBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="pesanUtamaErr"></div>
+
+  <!-- ============ KETENTUAN & TANYA JAWAB ============ -->
+  <div class="motiv-card">
+    <div class="eyebrow">Transparansi Pembelajaran</div>
+    <h3>Dashboard ini dibuka untuk publik agar orang tua &amp; masyarakat bisa memantau langsung kegiatan belajar siswa/i.</h3>
+    <p>Data diambil langsung dari presensi yang diisi guru mata pelajaran setiap sesi — bukan rekap manual dari admin — sehingga angkanya mencerminkan kondisi kelas apa adanya.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Ketentuan Tingkat Kehadiran</h3>
+        <p>Tindak lanjut bertahap, bukan sanksi otomatis — keputusan akhir tetap lewat rapat dewan guru</p>
+      </div>
+    </div>
+    <ul class="tingkat-list" id="daftarTingkatKehadiran"></ul>
+    <div class="tingkat-disclaimer">
+      Tabel ini bersifat indikatif untuk pembinaan dini. Keputusan kenaikan kelas/kelulusan tetap
+      ditentukan melalui rapat dewan guru sesuai kebijakan SMKS Ciledug Al-Musaddadiyah.
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Pertanyaan yang Sering Diajukan</h3>
+        <p>Seputar cara membaca dan menggunakan dashboard ini</p>
+      </div>
+    </div>
+    <details class="faq-item" open>
+      <summary>Dari mana data kehadiran ini berasal?</summary>
+      <p>Langsung dari guru mata pelajaran yang mengisi presensi di setiap sesi/jam pelajaran melalui sistem sekolah. Tidak ada input manual tambahan dari admin, jadi angkanya real-time mengikuti apa yang diisi guru di kelas.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Seberapa sering data ini diperbarui?</summary>
+      <p>Otomatis, begitu seorang guru menyimpan presensi sesi mengajarnya. Anda tidak perlu me-refresh berkali-kali — cukup pilih tanggal yang ingin dilihat lalu tekan "Tampilkan".</p>
+    </details>
+    <details class="faq-item">
+      <summary>Kenapa data anak saya belum muncul hari ini?</summary>
+      <p>Kemungkinan besar guru mata pelajaran pada jam tersebut belum sempat mengisi presensi — statusnya akan tampil "Belum Tercatat", bukan otomatis dianggap Alpa. Coba cek kembali beberapa saat lagi atau setelah jam pelajaran berakhir.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Bagaimana persentase kehadiran dihitung?</summary>
+      <p>Jumlah jam pelajaran dengan status Hadir dibagi total jam pelajaran yang tercatat pada periode tersebut, dikali 100%. Sakit dan Izin dicatat terpisah dan tidak dihitung sebagai Hadir maupun Alpa.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Apakah nama semua siswa ditampilkan ke publik?</summary>
+      <p>Tidak. Halaman ini hanya menampilkan angka agregat per kelas dan per jurusan. Nama serta rincian per mata pelajaran hanya terbuka lewat fitur "Cari Data Anak Saya" di bawah, dan baru muncul kalau NIS yang diketik cocok dengan nama siswanya.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Saya menemukan data yang sepertinya keliru, harus bagaimana?</summary>
+      <p>Silakan hubungi wali kelas atau tata usaha SMKS Ciledug Al-Musaddadiyah dengan menyebutkan NIS, nama, tanggal, dan mata pelajaran yang dimaksud, supaya guru terkait bisa mengecek dan mengoreksi presensinya.</p>
+    </details>
+  </div>
+
+  <!-- ============ CARI DATA ANAK SAYA ============ -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Cari Data Anak Saya</h3>
+        <p>Khusus orang tua/wali — masukkan NIS dan nama siswa untuk melihat rekap kehadiran anak Anda</p>
+      </div>
+    </div>
+    <div class="cari-form">
+      <input type="text" id="inNisAnak" placeholder="NIS siswa">
+      <input type="text" id="inNamaAnak" placeholder="Nama siswa (sesuai data sekolah)">
+      <button class="btn-cari" id="btnCariAnak" onclick="cariAnak()">Cari</button>
+    </div>
+    <div id="pesanCariAnak"></div>
+
+    <div class="hasil-anak" id="hasilAnak">
+      <div class="profil-anak">
+        <div>
+          <h4 id="namaAnak">-</h4>
+          <p id="infoAnak">-</p>
+        </div>
+        <div class="persen-besar" id="persenAnak">-
+          <span class="sub">rata² nilai sikap bulan ini</span>
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin:0 0 8px;font-weight:700;">14 hari terakhir</p>
+      <div class="strip-14hari" id="stripAnak"></div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Mata Pelajaran</th>
+              <th class="num">Jam</th><th class="num">Hadir</th><th class="num">Sakit</th>
+              <th class="num">Izin</th><th class="num">Alpa</th><th class="num">Nilai</th>
+            </tr>
+          </thead>
+          <tbody id="tabelMapelAnak"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Data bersumber dari presensi guru mata pelajaran secara langsung dan diperbarui otomatis.
+  Untuk koreksi data, hubungi wali kelas atau tata usaha SMKS Ciledug Al-Musaddadiyah.
+</footer>
+
+<script>
+// GANTI sesuai deployment Web App Apps Script Anda (SAMA dengan yang
+// dipakai presensi_mapel.html & index__36_.html).
+const API_URL = 'https://script.google.com/macros/s/AKfycbxBtBR6nSEQVGvzAzB5NGm9PPX-ataISiR0mSq9EgASK91CfUm156sb9r_C_v7rVS7sKw/exec';
+const TOKEN = 'SMKSCALM2026';
+
+let dataKelasSemua = [];
+let dataJurusanSemua = [];
+
+function setHariIni(){
+  document.getElementById('inTanggal').valueAsDate = new Date();
+  muatSemua();
+}
+
+async function muatSemua(){
+  const tanggal = document.getElementById('inTanggal').value;
+  document.getElementById('isiUtama').style.display = 'none';
+  document.getElementById('muatUtama').style.display = 'block';
+  document.getElementById('pesanUtamaErr').innerHTML = '';
+
+  try {
+    const [resHarian, resTren] = await Promise.all([
+      fetch(`${API_URL}?token=${encodeURIComponent(TOKEN)}&aksi=rekapPublikHarian&tanggal=${encodeURIComponent(tanggal)}`).then(r=>r.json()),
+      fetch(`${API_URL}?token=${encodeURIComponent(TOKEN)}&aksi=trenKehadiranPublik&hari=14`).then(r=>r.json())
+    ]);
+
+    if (!resHarian.ok) throw new Error(resHarian.error || 'Gagal memuat rekap.');
+
+    tampilkanRekapHarian(resHarian.data);
+    if (resTren.ok) gambarGrafikTren(resTren.data);
+
+    document.getElementById('muatUtama').style.display = 'none';
+    document.getElementById('isiUtama').style.display = 'block';
+  } catch (e) {
+    document.getElementById('muatUtama').style.display = 'none';
+    document.getElementById('pesanUtamaErr').innerHTML =
+      `<div class="pesan err">Gagal memuat data: ${e.message}. Coba muat ulang halaman.</div>`;
+  }
+}
+
+function tampilkanRekapHarian(data){
+  document.getElementById('subJudulTanggal').textContent =
+    `${data.hari}, ${formatTanggalIndo(data.tanggal)}`;
+
+  const s = data.sekolah;
+  document.getElementById('angkaTotal').textContent = s.totalSiswa;
+  document.getElementById('angkaHadir').textContent = s.hadir;
+  document.getElementById('angkaSakit').textContent = s.sakit;
+  document.getElementById('angkaIzin').textContent = s.izin;
+  document.getElementById('angkaAlpa').textContent = s.alpa;
+  document.getElementById('angkaBelum').textContent = Math.max(s.totalSiswa - s.hadir - s.sakit - s.izin - s.alpa, 0);
+
+  gambarGauge(s.persenHadir);
+  document.getElementById('gaugeSub').textContent = `${s.hadir} dari ${s.totalSiswa} siswa hadir`;
+
+  dataJurusanSemua = data.jurusan;
+  dataKelasSemua = data.kelas;
+  renderJurusan();
+  isiFilterJurusan();
+  renderTabelKelas();
+}
+
+function renderJurusan(){
+  const el = document.getElementById('daftarJurusan');
+  el.innerHTML = '';
+  dataJurusanSemua.forEach(j => {
+    const div = document.createElement('div');
+    div.className = 'jurusan-item';
+    div.innerHTML = `
+      <div class="jurusan-top">
+        <b>${j.namaJurusan}</b>
+        <span>${j.hadir}/${j.totalSiswa} hadir · ${j.persenHadir}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.min(j.persenHadir,100)}%"></div></div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function isiFilterJurusan(){
+  const sel = document.getElementById('filterJurusan');
+  const nilaiTerpilih = sel.value;
+  sel.innerHTML = '<option value="">Semua jurusan</option>';
+  dataJurusanSemua.forEach(j => {
+    const opt = document.createElement('option');
+    opt.value = j.kodeJurusan; opt.textContent = j.namaJurusan;
+    sel.appendChild(opt);
+  });
+  sel.value = nilaiTerpilih;
+}
+
+function renderTabelKelas(){
+  const filter = document.getElementById('filterJurusan').value;
+  const body = document.getElementById('tabelKelasBody');
+  body.innerHTML = '';
+  const daftar = dataKelasSemua.filter(k => !filter || k.kodeJurusan === filter);
+  if (!daftar.length){
+    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:20px;">Tidak ada data.</td></tr>';
+    return;
+  }
+  daftar.forEach(k => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${k.kodeKelas}</b></td>
+      <td>${k.namaJurusan}</td>
+      <td class="num">${k.totalSiswa}</td>
+      <td class="num">${k.hadir}</td>
+      <td class="num">${k.sakit}</td>
+      <td class="num">${k.izin}</td>
+      <td class="num">${k.alpa}</td>
+      <td class="num"><span class="persen-pill" style="${gayaPersen(k.persenHadir)}">${k.persenHadir}%</span></td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+function gayaPersen(p){
+  if (p >= 90) return 'background:var(--ok-bg);color:var(--ok);';
+  if (p >= 75) return 'background:var(--warn-bg);color:var(--warn-deep);';
+  return 'background:var(--err-bg);color:var(--err);';
+}
+
+function formatTanggalIndo(tglStr){
+  const [y,m,d] = tglStr.split('-').map(Number);
+  const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return `${d} ${bulan[m-1]} ${y}`;
+}
+
+// ============ GAUGE (canvas) ============
+function gambarGauge(persen){
+  const canvas = document.getElementById('gaugeSekolah');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const cx = w/2, cy = h - 10, r = 74;
+
+  ctx.lineWidth = 16; ctx.lineCap = 'round';
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#edf1f9';
+  ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 2*Math.PI); ctx.stroke();
+
+  const warna = persen >= 90 ? '#12b76a' : (persen >= 75 ? '#f79009' : '#f04438');
+  const sudutAkhir = Math.PI + (Math.min(persen,100)/100) * Math.PI;
+  ctx.strokeStyle = warna;
+  ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, sudutAkhir); ctx.stroke();
+
+  ctx.fillStyle = '#10182b';
+  ctx.font = '700 26px Sora, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${persen}%`, cx, cy - 16);
+}
+
+// ============ GRAFIK TREN (canvas line chart) ============
+function gambarGrafikTren(daftar){
+  const canvas = document.getElementById('grafikTren');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const padL = 36, padR = 12, padT = 16, padB = 26;
+  ctx.clearRect(0,0,w,h);
+
+  const nilai = daftar.map(d => d.persenHadir);
+  const maxNilai = 100, minNilai = 0;
+  const stepX = (w - padL - padR) / Math.max(daftar.length - 1, 1);
+
+  // grid horizontal
+  ctx.strokeStyle = '#edf1f9'; ctx.lineWidth = 1; ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#98a2b8';
+  [0,25,50,75,100].forEach(g => {
+    const y = padT + (h - padT - padB) * (1 - g/100);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.fillText(g+'%', 4, y + 4);
+  });
+
+  // garis tren
+  ctx.beginPath();
+  daftar.forEach((d, i) => {
+    const x = padL + i * stepX;
+    const y = padT + (h - padT - padB) * (1 - (d.persenHadir - minNilai)/(maxNilai - minNilai));
+    if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = '#0b3d91'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+
+  // titik + label tanggal (setiap titik kalau <=14, kalau lebih pilih sebagian)
+  daftar.forEach((d, i) => {
+    const x = padL + i * stepX;
+    const y = padT + (h - padT - padB) * (1 - (d.persenHadir - minNilai)/(maxNilai - minNilai));
+    ctx.beginPath(); ctx.arc(x, y, 3.5, 0, 2*Math.PI);
+    ctx.fillStyle = '#ffb300'; ctx.fill();
+    ctx.strokeStyle = '#0b3d91'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    if (daftar.length <= 14 || i % Math.ceil(daftar.length/10) === 0) {
+      ctx.fillStyle = '#66708a'; ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'center';
+      const tgl = d.tanggal.split('-');
+      ctx.fillText(`${tgl[2]}/${tgl[1]}`, x, h - 8);
+    }
+  });
+}
+
+// ============ CARI DATA ANAK ============
+async function cariAnak(){
+  const nis = document.getElementById('inNisAnak').value.trim();
+  const nama = document.getElementById('inNamaAnak').value.trim();
+  const pesanEl = document.getElementById('pesanCariAnak');
+  const hasilEl = document.getElementById('hasilAnak');
+  hasilEl.classList.remove('show');
+
+  if (!nis || !nama) {
+    pesanEl.innerHTML = '<div class="pesan err">Isi NIS dan nama siswa.</div>';
+    return;
+  }
+
+  document.getElementById('btnCariAnak').disabled = true;
+  pesanEl.innerHTML = '<div class="muat">Mencari data...</div>';
+
+  try {
+    const url = `${API_URL}?token=${encodeURIComponent(TOKEN)}&aksi=cariSiswaOrangtua&nis=${encodeURIComponent(nis)}&nama=${encodeURIComponent(nama)}`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.ok) {
+      pesanEl.innerHTML = `<div class="pesan err">${json.error}</div>`;
+      return;
+    }
+    pesanEl.innerHTML = '';
+    tampilkanHasilAnak(json.data);
+    hasilEl.classList.add('show');
+  } catch (e) {
+    pesanEl.innerHTML = '<div class="pesan err">Gagal memuat data. Cek koneksi.</div>';
+  } finally {
+    document.getElementById('btnCariAnak').disabled = false;
+  }
+}
+
+function tampilkanHasilAnak(data){
+  document.getElementById('namaAnak').textContent = data.siswa.nama;
+  document.getElementById('infoAnak').textContent =
+    `NIS ${data.siswa.nis} · Kelas ${data.siswa.kodeKelas} · ${data.jurusan}`;
+
+  const nilai = data.rekapBulanIni.jumlah.nilai;
+  document.getElementById('persenAnak').innerHTML =
+    (nilai !== null ? nilai : '-') + '<span class="sub">' +
+    (nilai !== null ? data.rekapBulanIni.jumlah.kategori : 'belum ada nilai') + '</span>';
+
+  const stripEl = document.getElementById('stripAnak');
+  stripEl.innerHTML = '';
+  data.riwayat14Hari.forEach(r => {
+    const div = document.createElement('div');
+    const status = r.status || 'kosong';
+    div.className = 'chip-hari ' + status;
+    const tgl = r.tanggal.split('-');
+    div.innerHTML = `<span>${status === 'kosong' ? '–' : status.charAt(0)}</span><span class="tgl">${tgl[2]}</span>`;
+    stripEl.appendChild(div);
+  });
+
+  const body = document.getElementById('tabelMapelAnak');
+  body.innerHTML = '';
+  if (!data.rekapBulanIni.baris.length){
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:16px;">Belum ada data bulan ini.</td></tr>';
+    return;
+  }
+  data.rekapBulanIni.baris.forEach(b => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${b.namaMapel}</td>
+      <td class="num">${b.jumlahJamBelajar}</td>
+      <td class="num">${b.hadir}</td>
+      <td class="num">${b.sakit}</td>
+      <td class="num">${b.izin}</td>
+      <td class="num">${b.alpa}</td>
+      <td class="num">${b.nilai !== null ? b.nilai : '-'}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+// ============ KETENTUAN TINGKAT KEHADIRAN ============
+// Nilainya HARUS disamakan dengan konstanta TINGKAT_KEHADIRAN di
+// Akademik.gs (dipakai juga untuk tabel di PDF Laporan Kumulatif).
+const TINGKAT_KEHADIRAN = [
+  { min: 90, label: 'Baik', warna: 'var(--ok-bg)', teks: 'var(--ok)',
+    ket: 'Tidak ada tindak lanjut khusus.' },
+  { min: 80, label: 'Perlu Perhatian', warna: '#fffde7', teks: '#8a7a00',
+    ket: 'Dicatat wali kelas, disampaikan ke orang tua/wali lewat buku penghubung.' },
+  { min: 75, label: 'Peringatan', warna: 'var(--warn-bg)', teks: 'var(--warn-deep)',
+    ket: 'Surat pemberitahuan resmi ke orang tua/wali; pembinaan oleh wali kelas & guru BK.' },
+  { min: 0, label: 'Perlu Tindak Lanjut Serius', warna: 'var(--err-bg)', teks: 'var(--err)',
+    ket: 'Pemanggilan orang tua/wali; hasil pembinaan jadi salah satu bahan pertimbangan rapat dewan guru (bukan otomatis).' }
+];
+
+function renderTingkatKehadiran(){
+  const el = document.getElementById('daftarTingkatKehadiran');
+  el.innerHTML = '';
+  TINGKAT_KEHADIRAN.forEach((t, i) => {
+    const batasAtas = i === 0 ? 100 : TINGKAT_KEHADIRAN[i-1].min - 1;
+    const label = i === 0 ? `≥ ${t.min}%` : `${t.min}–${batasAtas}%`;
+    const li = document.createElement('li');
+    li.className = 'tingkat-item';
+    li.innerHTML = `
+      <div class="tingkat-chip" style="background:${t.warna};color:${t.teks};">${label}</div>
+      <div class="tingkat-body"><b>${t.label}</b><span>${t.ket}</span></div>
+    `;
+    el.appendChild(li);
+  });
+}
+
+// ============ INIT ============
+renderTingkatKehadiran();
+document.getElementById('inTanggal').valueAsDate = new Date();
+muatSemua();
+</script>
+
+</body>
+</html>
