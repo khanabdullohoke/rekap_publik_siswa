@@ -199,6 +199,39 @@
   .faq-item[open] summary::after{content:"–";}
   .faq-item p{margin:0 0 13px;font-size:12.5px;color:var(--muted);line-height:1.7;padding-right:20px;}
 
+  /* ===== Panel Admin (unduh laporan) ===== */
+  .admin-toggle-wrap{max-width:1120px;margin:0 auto 14px;padding:0 18px;display:flex;justify-content:flex-end;}
+  .admin-toggle{background:none;border:1.5px solid var(--line);color:var(--muted);font-size:11.5px;font-weight:700;
+    padding:7px 14px;border-radius:999px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+  .admin-toggle:hover{border-color:var(--navy);color:var(--navy);}
+  .admin-toggle .dot-lock{font-size:11px;}
+
+  .admin-panel{display:none;}
+  .admin-panel.show{display:block;}
+  .admin-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .admin-keluar{background:none;border:none;color:var(--err);font-size:11.5px;font-weight:700;cursor:pointer;padding:4px 0;font-family:inherit;}
+
+  .admin-login-form{display:grid;grid-template-columns:1fr auto;gap:8px;max-width:420px;}
+  .admin-login-form input{padding:11px 13px;border-radius:12px;border:1.5px solid var(--line);font-size:13.5px;font-family:inherit;background:#f8faff;}
+  .admin-login-form input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,61,145,0.10);}
+
+  .admin-tabs{display:flex;gap:6px;margin-bottom:14px;}
+  .admin-tab{flex:1;padding:9px 10px;border-radius:12px;border:1.5px solid var(--line);background:#fff;
+    color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;}
+  .admin-tab.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+  .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  @media(max-width:560px){.admin-grid{grid-template-columns:1fr;}}
+  .admin-field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+  .admin-field input,.admin-field select{width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);
+    font-size:13px;font-family:inherit;color:var(--ink);background:#f8faff;}
+  .admin-field input:focus,.admin-field select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,61,145,0.10);}
+
+  .btn-unduh{width:100%;padding:12px 18px;border:none;border-radius:12px;
+    background:linear-gradient(135deg,var(--navy) 0%,#1650b8 100%);color:#fff;font-weight:700;font-size:13.5px;
+    cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-unduh:disabled{opacity:.55;cursor:default;}
+  .admin-hint{font-size:11px;color:var(--faint);margin-top:8px;line-height:1.6;}
 </style>
 </head>
 <body>
@@ -219,6 +252,12 @@
     <button onclick="muatSemua()">Tampilkan</button>
   </div>
 </header>
+
+<div class="admin-toggle-wrap">
+  <button class="admin-toggle" id="btnToggleAdmin" onclick="toggleAdminPanel()">
+    <span class="dot-lock">🔒</span> Login Admin
+  </button>
+</div>
 
 <main>
 
@@ -416,6 +455,57 @@
           </thead>
           <tbody id="tabelMapelAnak"></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PANEL ADMIN — UNDUH LAPORAN ============ -->
+  <div class="panel admin-panel" id="panelAdmin">
+    <div class="admin-head">
+      <div>
+        <h3 style="font-size:14.5px;margin:0;color:var(--navy);font-weight:800;">Unduh Laporan (Admin)</h3>
+        <p style="margin:2px 0 0;font-size:11.5px;color:var(--faint);">Khusus staf/tata usaha — laporan harian &amp; rekapitulasi bulanan per kelas atau seluruh jurusan</p>
+      </div>
+      <button class="admin-keluar" id="btnAdminKeluar" style="display:none;" onclick="adminKeluar()">Keluar</button>
+    </div>
+
+    <div id="adminLoginBox">
+      <div class="admin-login-form">
+        <input type="password" id="inAdminPassword" placeholder="Password admin" autocomplete="off">
+        <button class="btn-cari" id="btnAdminMasuk" onclick="adminMasuk()">Masuk</button>
+      </div>
+      <div id="pesanAdminLogin"></div>
+    </div>
+
+    <div id="adminUnduhBox" style="display:none;">
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="tabHarian" onclick="pilihTabAdmin('harian')">Laporan Harian</button>
+        <button class="admin-tab" id="tabBulanan" onclick="pilihTabAdmin('bulanan')">Rekapitulasi Bulanan</button>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-field" id="fieldTanggalAdmin">
+          <label>Tanggal</label>
+          <input type="date" id="inAdminTanggal">
+        </div>
+        <div class="admin-field" id="fieldBulanAdmin" style="display:none;">
+          <label>Bulan</label>
+          <input type="month" id="inAdminBulan">
+        </div>
+        <div class="admin-field">
+          <label>Cakupan Kelas / Jurusan</label>
+          <select id="selAdminKelas">
+            <option value="">Semua Jurusan (semua kelas)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-unduh" id="btnAdminUnduh" onclick="adminUnduhPdf()">⬇ Unduh PDF</button>
+      <div id="pesanAdminUnduh"></div>
+      <div class="admin-hint">
+        Laporan Harian merekap kehadiran pada 1 tanggal terpilih. Rekapitulasi Bulanan merekap dari tanggal 1
+        hingga akhir bulan terpilih (atau hingga hari ini kalau bulan masih berjalan). Memilih satu kelas
+        menampilkan daftar tiap siswa; memilih "Semua Jurusan" menampilkan ringkasan per kelas.
       </div>
     </div>
   </div>
@@ -727,6 +817,140 @@ function renderTingkatKehadiran(){
     `;
     el.appendChild(li);
   });
+}
+
+// ============ ADMIN — UNDUH LAPORAN ============
+// Password admin HANYA disimpan di memori (variabel JS) selama sesi
+// halaman ini terbuka — tidak ditulis ke localStorage/cookie, dan
+// hilang otomatis saat halaman ditutup/refresh. Dikirim ke server
+// lewat POST (bukan query string GET) supaya tidak tercatat di log URL.
+let adminPassword = null;
+let adminKelasDimuat = false;
+let tabAdminAktif = 'harian';
+
+function toggleAdminPanel(){
+  const panel = document.getElementById('panelAdmin');
+  const akanTampil = !panel.classList.contains('show');
+  panel.classList.toggle('show', akanTampil);
+  document.getElementById('btnToggleAdmin').style.display = akanTampil ? 'none' : 'inline-flex';
+  if (akanTampil) {
+    panel.scrollIntoView({ behavior:'smooth', block:'start' });
+    if (!document.getElementById('inAdminTanggal').value) {
+      document.getElementById('inAdminTanggal').valueAsDate = new Date();
+    }
+    if (!document.getElementById('inAdminBulan').value) {
+      const now = new Date();
+      document.getElementById('inAdminBulan').value =
+        `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    }
+  }
+}
+
+async function adminMasuk(){
+  const password = document.getElementById('inAdminPassword').value;
+  const pesanEl = document.getElementById('pesanAdminLogin');
+  if (!password) {
+    pesanEl.innerHTML = '<div class="pesan err">Isi password admin.</div>';
+    return;
+  }
+  document.getElementById('btnAdminMasuk').disabled = true;
+  pesanEl.innerHTML = '<div class="muat" style="padding:10px 0;">Memeriksa...</div>';
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ token: TOKEN, aksi: 'verifikasiAdmin', password: password })
+    }).then(r => r.json());
+    if (!res.ok) {
+      pesanEl.innerHTML = `<div class="pesan err">${res.error || 'Password salah.'}</div>`;
+      return;
+    }
+    adminPassword = password;
+    pesanEl.innerHTML = '';
+    document.getElementById('inAdminPassword').value = '';
+    document.getElementById('adminLoginBox').style.display = 'none';
+    document.getElementById('adminUnduhBox').style.display = 'block';
+    document.getElementById('btnAdminKeluar').style.display = 'inline-block';
+    if (!adminKelasDimuat) muatDaftarKelasAdmin();
+  } catch (e) {
+    pesanEl.innerHTML = '<div class="pesan err">Gagal terhubung ke server. Cek koneksi.</div>';
+  } finally {
+    document.getElementById('btnAdminMasuk').disabled = false;
+  }
+}
+
+function adminKeluar(){
+  adminPassword = null;
+  document.getElementById('adminLoginBox').style.display = 'block';
+  document.getElementById('adminUnduhBox').style.display = 'none';
+  document.getElementById('btnAdminKeluar').style.display = 'none';
+  document.getElementById('pesanAdminUnduh').innerHTML = '';
+}
+
+// Dropdown kelas dimuat SEKALI, hanya setelah admin berhasil login —
+// bukan saat halaman publik pertama kali dibuka — supaya pengunjung
+// biasa tidak menanggung request tambahan yang tidak mereka pakai.
+async function muatDaftarKelasAdmin(){
+  const sel = document.getElementById('selAdminKelas');
+  try {
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(TOKEN)}&aksi=daftarKelas`).then(r=>r.json());
+    if (!res.ok) return;
+    res.data.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k.kodeKelas;
+      opt.textContent = `${k.kodeKelas} (Tingkat ${k.tingkat})`;
+      sel.appendChild(opt);
+    });
+    adminKelasDimuat = true;
+  } catch (e) { /* dropdown tetap bisa dipakai dengan "Semua Jurusan" saja */ }
+}
+
+function pilihTabAdmin(tab){
+  tabAdminAktif = tab;
+  document.getElementById('tabHarian').classList.toggle('active', tab === 'harian');
+  document.getElementById('tabBulanan').classList.toggle('active', tab === 'bulanan');
+  document.getElementById('fieldTanggalAdmin').style.display = tab === 'harian' ? 'block' : 'none';
+  document.getElementById('fieldBulanAdmin').style.display = tab === 'bulanan' ? 'block' : 'none';
+  document.getElementById('pesanAdminUnduh').innerHTML = '';
+}
+
+async function adminUnduhPdf(){
+  if (!adminPassword) { adminKeluar(); return; }
+  const kodeKelas = document.getElementById('selAdminKelas').value;
+  const pesanEl = document.getElementById('pesanAdminUnduh');
+  const btn = document.getElementById('btnAdminUnduh');
+
+  let payload;
+  if (tabAdminAktif === 'harian') {
+    const tanggal = document.getElementById('inAdminTanggal').value;
+    if (!tanggal) { pesanEl.innerHTML = '<div class="pesan err">Pilih tanggal terlebih dahulu.</div>'; return; }
+    payload = { token: TOKEN, aksi: 'laporanHarianPdf', password: adminPassword, tanggal: tanggal, kodeKelas: kodeKelas };
+  } else {
+    const bulan = document.getElementById('inAdminBulan').value;
+    if (!bulan) { pesanEl.innerHTML = '<div class="pesan err">Pilih bulan terlebih dahulu.</div>'; return; }
+    payload = { token: TOKEN, aksi: 'rekapBulananPdf', password: adminPassword, bulan: bulan, kodeKelas: kodeKelas };
+  }
+
+  btn.disabled = true;
+  const labelAsli = btn.textContent;
+  btn.textContent = 'Membuat PDF...';
+  pesanEl.innerHTML = '<div class="muat" style="padding:10px 0;">Membuat laporan, mohon tunggu...</div>';
+
+  try {
+    const res = await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) }).then(r => r.json());
+    if (!res.ok) {
+      // Password ditolak server (mis. sudah diganti admin lain) -> paksa login ulang.
+      if (/password/i.test(res.error || '')) adminKeluar();
+      pesanEl.innerHTML = `<div class="pesan err">${res.error || 'Gagal membuat laporan.'}</div>`;
+      return;
+    }
+    pesanEl.innerHTML = '<div class="pesan ok">Laporan siap. Tab baru akan terbuka untuk mengunduh.</div>';
+    window.open(res.url, '_blank');
+  } catch (e) {
+    pesanEl.innerHTML = '<div class="pesan err">Gagal terhubung ke server. Coba lagi.</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = labelAsli;
+  }
 }
 
 // ============ INIT ============
