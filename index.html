@@ -409,7 +409,7 @@
     </details>
     <details class="faq-item">
       <summary>Apakah nama semua siswa ditampilkan ke publik?</summary>
-      <p>Tidak. Halaman ini hanya menampilkan angka agregat per kelas dan per jurusan. Nama serta rincian per mata pelajaran hanya terbuka lewat fitur "Cari Data Anak Saya" di bawah, dan baru muncul kalau NIS yang diketik cocok dengan nama siswanya.</p>
+      <p>Tidak. Halaman ini hanya menampilkan angka agregat per kelas dan per jurusan. Nama serta rincian per mata pelajaran hanya terbuka lewat fitur "Cari Data Siswa" di bawah, dan baru muncul kalau NIS yang diketik cocok dengan nama siswanya.</p>
     </details>
     <details class="faq-item">
       <summary>Saya menemukan data yang sepertinya keliru, harus bagaimana?</summary>
@@ -417,12 +417,12 @@
     </details>
   </div>
 
-  <!-- ============ CARI DATA ANAK SAYA ============ -->
+  <!-- ============ CARI DATA SISWA ============ -->
   <div class="panel">
     <div class="panel-head">
       <div>
-        <h3>Cari Data Anak Saya</h3>
-        <p>Khusus orang tua/wali — masukkan NIS dan nama siswa untuk melihat rekap kehadiran anak Anda</p>
+        <h3>Cari Data Siswa</h3>
+        <p>Masukkan NIS dan nama siswa untuk melihat rekap kehadiran serta nilai sikap per mata pelajaran, lengkap dengan guru pengajarnya</p>
       </div>
     </div>
     <div class="cari-form">
@@ -448,7 +448,7 @@
         <table>
           <thead>
             <tr>
-              <th>Mata Pelajaran</th>
+              <th>Mata Pelajaran</th><th>Guru Pengajar</th>
               <th class="num">Jam</th><th class="num">Hadir</th><th class="num">Sakit</th>
               <th class="num">Izin</th><th class="num">Alpa</th><th class="num">Nilai</th>
             </tr>
@@ -506,6 +506,41 @@
         Laporan Harian merekap kehadiran pada 1 tanggal terpilih. Rekapitulasi Bulanan merekap dari tanggal 1
         hingga akhir bulan terpilih (atau hingga hari ini kalau bulan masih berjalan). Memilih satu kelas
         menampilkan daftar tiap siswa; memilih "Semua Jurusan" menampilkan ringkasan per kelas.
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:20px 0 16px;">
+
+      <div>
+        <h4 style="font-size:13.5px;margin:0 0 3px;color:var(--navy);font-weight:800;">Unduh Data Siswa (Personal)</h4>
+        <p style="margin:0 0 12px;font-size:11.5px;color:var(--faint);">Laporan kumulatif kehadiran &amp; nilai sikap 1 siswa saja — harian atau bulanan. Hanya bisa diunduh lewat panel admin ini.</p>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="tabPersonalHarian" onclick="pilihTabPersonal('harian')">Harian</button>
+        <button class="admin-tab" id="tabPersonalBulanan" onclick="pilihTabPersonal('bulanan')">Bulanan</button>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-field">
+          <label>NIS Siswa</label>
+          <input type="text" id="inPersonalNis" placeholder="Masukkan NIS siswa">
+        </div>
+        <div class="admin-field" id="fieldTanggalPersonal">
+          <label>Tanggal</label>
+          <input type="date" id="inPersonalTanggal">
+        </div>
+        <div class="admin-field" id="fieldBulanPersonal" style="display:none;">
+          <label>Bulan</label>
+          <input type="month" id="inPersonalBulan">
+        </div>
+      </div>
+
+      <button class="btn-unduh" id="btnAdminUnduhPersonal" onclick="adminUnduhPersonal()">⬇ Unduh Data Siswa (PDF)</button>
+      <div id="pesanAdminPersonal"></div>
+      <div class="admin-hint">
+        Harian merekap 1 tanggal terpilih. Bulanan merekap dari tanggal 1 hingga akhir bulan terpilih (atau
+        hingga hari ini kalau bulan masih berjalan). PDF berisi rekap per mata pelajaran (jam belajar, hadir,
+        sakit, izin, alpa, nilai, guru pengajar) beserta tabel absensi satu kelas penuh sebagai pembanding.
       </div>
     </div>
   </div>
@@ -771,13 +806,14 @@ function tampilkanHasilAnak(data){
   const body = document.getElementById('tabelMapelAnak');
   body.innerHTML = '';
   if (!data.rekapBulanIni.baris.length){
-    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--faint);padding:16px;">Belum ada data bulan ini.</td></tr>';
+    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--faint);padding:16px;">Belum ada data bulan ini.</td></tr>';
     return;
   }
   data.rekapBulanIni.baris.forEach(b => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${b.namaMapel}</td>
+      <td>${b.namaGuru || '-'}</td>
       <td class="num">${b.jumlahJamBelajar}</td>
       <td class="num">${b.hadir}</td>
       <td class="num">${b.sakit}</td>
@@ -841,6 +877,14 @@ function toggleAdminPanel(){
     if (!document.getElementById('inAdminBulan').value) {
       const now = new Date();
       document.getElementById('inAdminBulan').value =
+        `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    }
+    if (!document.getElementById('inPersonalTanggal').value) {
+      document.getElementById('inPersonalTanggal').valueAsDate = new Date();
+    }
+    if (!document.getElementById('inPersonalBulan').value) {
+      const now = new Date();
+      document.getElementById('inPersonalBulan').value =
         `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     }
   }
@@ -944,6 +988,84 @@ async function adminUnduhPdf(){
       return;
     }
     pesanEl.innerHTML = '<div class="pesan ok">Laporan siap. Tab baru akan terbuka untuk mengunduh.</div>';
+    window.open(res.url, '_blank');
+  } catch (e) {
+    pesanEl.innerHTML = '<div class="pesan err">Gagal terhubung ke server. Coba lagi.</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = labelAsli;
+  }
+}
+
+// ============ ADMIN — UNDUH DATA SISWA (PERSONAL) ============
+// Terpisah dari laporan per-kelas di atas: butuh NIS siswa spesifik,
+// tetap wajib login admin (adminPassword) yang sama. Backend
+// (aksi 'laporanKumulatifPdf') kini memverifikasi password admin
+// sebelum membuat PDF — lihat catatan di Akademik.gs.
+let tabPersonalAktif = 'harian';
+
+function pilihTabPersonal(tab){
+  tabPersonalAktif = tab;
+  document.getElementById('tabPersonalHarian').classList.toggle('active', tab === 'harian');
+  document.getElementById('tabPersonalBulanan').classList.toggle('active', tab === 'bulanan');
+  document.getElementById('fieldTanggalPersonal').style.display = tab === 'harian' ? 'block' : 'none';
+  document.getElementById('fieldBulanPersonal').style.display = tab === 'bulanan' ? 'block' : 'none';
+  document.getElementById('pesanAdminPersonal').innerHTML = '';
+}
+
+// Rentang tanggal 1 s/d akhir bulan terpilih, dibatasi sampai hari ini
+// kalau bulan tsb masih berjalan — meniru logika generateRekapBulananPDF
+// di server, supaya judul periode di PDF tidak pernah terbalik.
+function _rentangBulanPersonal(bulanStr){
+  const parts = bulanStr.split('-').map(Number);
+  const thn = parts[0], bln = parts[1];
+  const awal = new Date(thn, bln - 1, 1);
+  const akhir = new Date(thn, bln, 0);
+  const now = new Date();
+  const akhirEfektif = (now.getTime() >= awal.getTime() && akhir.getTime() > now.getTime()) ? now : akhir;
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return { mulai: fmt(awal), selesai: fmt(akhirEfektif) };
+}
+
+async function adminUnduhPersonal(){
+  if (!adminPassword) { adminKeluar(); return; }
+  const nis = document.getElementById('inPersonalNis').value.trim();
+  const pesanEl = document.getElementById('pesanAdminPersonal');
+  const btn = document.getElementById('btnAdminUnduhPersonal');
+
+  if (!nis) { pesanEl.innerHTML = '<div class="pesan err">Isi NIS siswa terlebih dahulu.</div>'; return; }
+
+  let periodeMulai, periodeSelesai;
+  if (tabPersonalAktif === 'harian') {
+    const tanggal = document.getElementById('inPersonalTanggal').value;
+    if (!tanggal) { pesanEl.innerHTML = '<div class="pesan err">Pilih tanggal terlebih dahulu.</div>'; return; }
+    periodeMulai = tanggal; periodeSelesai = tanggal;
+  } else {
+    const bulan = document.getElementById('inPersonalBulan').value;
+    if (!bulan) { pesanEl.innerHTML = '<div class="pesan err">Pilih bulan terlebih dahulu.</div>'; return; }
+    const rentang = _rentangBulanPersonal(bulan);
+    periodeMulai = rentang.mulai; periodeSelesai = rentang.selesai;
+  }
+
+  btn.disabled = true;
+  const labelAsli = btn.textContent;
+  btn.textContent = 'Membuat PDF...';
+  pesanEl.innerHTML = '<div class="muat" style="padding:10px 0;">Membuat laporan, mohon tunggu...</div>';
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        token: TOKEN, aksi: 'laporanKumulatifPdf', password: adminPassword,
+        nis: nis, periodeMulai: periodeMulai, periodeSelesai: periodeSelesai
+      })
+    }).then(r => r.json());
+    if (!res.ok) {
+      if (/password/i.test(res.error || '')) adminKeluar();
+      pesanEl.innerHTML = `<div class="pesan err">${res.error || 'Gagal membuat laporan.'}</div>`;
+      return;
+    }
+    pesanEl.innerHTML = `<div class="pesan ok">Laporan ${res.nama || 'siswa'} siap. Tab baru akan terbuka untuk mengunduh.</div>`;
     window.open(res.url, '_blank');
   } catch (e) {
     pesanEl.innerHTML = '<div class="pesan err">Gagal terhubung ke server. Coba lagi.</div>';
