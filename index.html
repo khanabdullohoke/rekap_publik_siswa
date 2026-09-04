@@ -558,11 +558,30 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbxBtBR6nSEQVGvzAzB5NGm9PPX-ataISiR0mSq9EgASK91CfUm156sb9r_C_v7rVS7sKw/exec';
 const TOKEN = 'SMKSCALM2026';
 
+// PERBAIKAN BUG KRITIS — jangan pakai `input.valueAsDate = new Date()` untuk
+// mengisi <input type="date"> dengan "tanggal hari ini". valueAsDate mengisi
+// field itu berdasarkan komponen UTC dari objek Date, BUKAN tanggal lokal
+// perangkat. Karena WIB = UTC+7, setiap jam 00:00–06:59 WIB (justru jam-jam
+// sekolah mulai presensi pagi) sebenarnya masih "kemarin" di UTC, sehingga
+// field tanggal otomatis terisi TANGGAL KEMARIN, bukan hari ini — dan itu
+// lalu ikut dikirim sebagai parameter `tanggal` ke API. Helper ini mengambil
+// tahun/bulan/tanggal LOKAL (sama seperti cara inAdminBulan/inPersonalBulan
+// sudah benar dibuat di bawah) dan mengisi input.value langsung dengan
+// string 'yyyy-MM-dd', supaya selalu cocok dengan tanggal yang dilihat
+// pengguna di perangkatnya sendiri.
+function _tanggalLokalYyyyMmDd(d){
+  const dt = d || new Date();
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const t = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${t}`;
+}
+
 let dataKelasSemua = [];
 let dataJurusanSemua = [];
 
 function setHariIni(){
-  document.getElementById('inTanggal').valueAsDate = new Date();
+  document.getElementById('inTanggal').value = _tanggalLokalYyyyMmDd();
   muatSemua();
 }
 
@@ -901,7 +920,7 @@ function toggleAdminPanel(){
   if (akanTampil) {
     panel.scrollIntoView({ behavior:'smooth', block:'start' });
     if (!document.getElementById('inAdminTanggal').value) {
-      document.getElementById('inAdminTanggal').valueAsDate = new Date();
+      document.getElementById('inAdminTanggal').value = _tanggalLokalYyyyMmDd();
     }
     if (!document.getElementById('inAdminBulan').value) {
       const now = new Date();
@@ -909,7 +928,7 @@ function toggleAdminPanel(){
         `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     }
     if (!document.getElementById('inPersonalTanggal').value) {
-      document.getElementById('inPersonalTanggal').valueAsDate = new Date();
+      document.getElementById('inPersonalTanggal').value = _tanggalLokalYyyyMmDd();
     }
     if (!document.getElementById('inPersonalBulan').value) {
       const now = new Date();
@@ -1106,7 +1125,7 @@ async function adminUnduhPersonal(){
 
 // ============ INIT ============
 renderTingkatKehadiran();
-document.getElementById('inTanggal').valueAsDate = new Date();
+document.getElementById('inTanggal').value = _tanggalLokalYyyyMmDd();
 muatSemua();
 </script>
 
