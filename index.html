@@ -855,6 +855,35 @@ function renderTingkatKehadiran(){
   });
 }
 
+// ============ OPTIMALISASI — UNDUH PDF LANGSUNG (TANPA TAB BARU) ============
+// Backend (Akademik.gs) sekarang mengembalikan PDF sebagai data base64
+// langsung di response JSON (field "base64" + "namaFile"), bukan lagi
+// URL Google Drive untuk dibuka lewat window.open(). Helper ini yang
+// mengubah base64 itu jadi Blob di browser lalu memicu unduhan file
+// lewat elemen <a download> sementara (diklik otomatis, langsung
+// dilepas) — jadi PDF langsung terunduh di tab yang sama, tanpa
+// membuka/mengalihkan ke tab/jendela baru sama sekali. Dipakai baik
+// oleh Laporan Admin per kelas (adminUnduhPdf) maupun Data Siswa
+// Personal (adminUnduhPersonal) di bawah.
+function _unduhPdfDariBase64(base64, namaFile){
+  const byteChars = atob(base64);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = namaFile || 'laporan.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Ditunda sedikit sebelum revoke supaya unduhan sempat mulai di
+  // semua browser (beberapa browser masih perlu URL objek beberapa
+  // saat setelah klik sebelum benar-benar mulai menyalin file-nya).
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
 // ============ ADMIN — UNDUH LAPORAN ============
 // Password admin HANYA disimpan di memori (variabel JS) selama sesi
 // halaman ini terbuka — tidak ditulis ke localStorage/cookie, dan
@@ -987,8 +1016,8 @@ async function adminUnduhPdf(){
       pesanEl.innerHTML = `<div class="pesan err">${res.error || 'Gagal membuat laporan.'}</div>`;
       return;
     }
-    pesanEl.innerHTML = '<div class="pesan ok">Laporan siap. Tab baru akan terbuka untuk mengunduh.</div>';
-    window.open(res.url, '_blank');
+    _unduhPdfDariBase64(res.base64, res.namaFile);
+    pesanEl.innerHTML = '<div class="pesan ok">Laporan berhasil diunduh.</div>';
   } catch (e) {
     pesanEl.innerHTML = '<div class="pesan err">Gagal terhubung ke server. Coba lagi.</div>';
   } finally {
@@ -1065,8 +1094,8 @@ async function adminUnduhPersonal(){
       pesanEl.innerHTML = `<div class="pesan err">${res.error || 'Gagal membuat laporan.'}</div>`;
       return;
     }
-    pesanEl.innerHTML = `<div class="pesan ok">Laporan ${res.nama || 'siswa'} siap. Tab baru akan terbuka untuk mengunduh.</div>`;
-    window.open(res.url, '_blank');
+    _unduhPdfDariBase64(res.base64, res.namaFile);
+    pesanEl.innerHTML = `<div class="pesan ok">Laporan ${res.nama || 'siswa'} berhasil diunduh.</div>`;
   } catch (e) {
     pesanEl.innerHTML = '<div class="pesan err">Gagal terhubung ke server. Coba lagi.</div>';
   } finally {
